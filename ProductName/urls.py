@@ -21,6 +21,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # let urls file of base app handle all routing matching the route (empty string/core URL)
+    # let urls.py file of base app handle all routing matching the route (empty string/core URL)
     path('', include('base.urls'))
 ]

@@ -17,7 +17,13 @@
     <main>
         <div>
             {% for room in rooms %}
+            <span>@{{room.host.username}}</span>
+
+            <!--href will generate a link along the lines of website/room/1 for example-->
             <p>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></p>
+            <small>{{room.topic.name}}</small>
+            <hr>
+
             {% endfor %}
         </div>
     </main>

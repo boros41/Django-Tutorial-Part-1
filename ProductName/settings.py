@@ -31,13 +31,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # default database tables ready to be migrated such as a user authentication table and user login sessions
+    # django creates these migrations which are basically SQL commands prepped and are ready to be executed/activated
+    # but have not been triggered yet
+    # once you run these migrations, these commands are gonna be activated and will build all these database tables
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'base.apps.BaseConfig'
+
+
+    'base.apps.BaseConfig',
 ]
 
 MIDDLEWARE = [
