@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from django.http import HttpResponse
-from .models import Room
+from .models import Room, Topic
 from .forms import RoomForm
 
 # Create your views here.
@@ -16,8 +17,27 @@ from .forms import RoomForm
 
 # home page
 def home(request):
-    rooms = Room.objects.all() # get all the rooms in the database (entries), currently overriding rooms list
-    context = {"rooms": rooms}
+    if request.GET.get("q") != None:
+        q = request.GET.get("q") # get the query parameter from the URL such as "?q=Django"
+    else:
+        q = ""
+
+    # get the room objects/entries where the topic name is equal to the query parameter
+    # this goes into the topic field of model Room and goes to the parent using (__) to get the name to see if it is equal to q
+    # the __icontains is a case-insensitive search meaning if the query is empty, then technically all topic names match that
+    # if the query is not empty but only contains the start of a topic name such as "Un" for "Unity" then it will
+    # still match the topic name "Unity" because it contains "Un", hence the name "contains"
+    rooms = Room.objects.filter(
+        Q(topic__name__icontains=q)
+        | Q(name__icontains=q)
+        | Q(description__icontains=q)
+        | Q(host__username__icontains=q)) # room name
+
+    room_count = rooms.count() # get the number of rooms 
+
+    topics = Topic.objects.all() # get all the topics in the database (entries), ideally would filter if a lot of topics
+
+    context = {"rooms": rooms, "topics": topics, "room_count": room_count}
     return render(request, 'base/home.html', context)
 
 # room page for different conversations
