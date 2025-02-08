@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Room
+from .forms import RoomForm
+
 # Create your views here.
 
 
@@ -28,3 +30,40 @@ def room(request, pk):
 
     context = {"room": room}
     return render(request, "base/room.html", context) # return a specific page for a room
+
+def createRoom(request):
+    form = RoomForm()
+
+    if request.method == "POST":
+        form = RoomForm(request.POST) # get the user's input from the form contained in the POST request
+
+        if form.is_valid():
+            form.save() # save the user's input of the model instance to the database
+            return redirect("home") # redirect to the home page specified by the url's name attribute
+    
+
+    context = {"form": form}
+    return render(request, "base/room_form.html", context)
+
+def updateRoom(request, pk):
+    room = Room.objects.get(id=pk) # gets room object/entry where the id (primary key) is equal to the URL clicked i.e, room/1
+    form = RoomForm(instance=room) # prefill the form with the selected room model's data since we want to know what we are editing
+    
+    if request.method == "POST":
+        # get the user's input of the selected room from the form contained in the POST request
+        form = RoomForm(request.POST, instance=room) # data in POST request will replace whatever is in the room instance
+        if form.is_valid():
+            form.save()
+            return redirect("home") # redirect to the home page specified by the url's name attribute 
+
+    context = {"form": form}
+    return render(request, "base/room_form.html", context)
+
+def deleteRoom(request, pk):
+    room = Room.objects.get(id=pk)
+
+    if request.method == "POST":
+        room.delete() # remove room entry from Room table from the database
+        return redirect("home")
+
+    return render(request, "base/delete.html", {"obj":room})

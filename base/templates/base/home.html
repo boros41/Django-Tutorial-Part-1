@@ -15,8 +15,12 @@
         <h1>Home Template</h1>
     </header>
     <main>
+        <a href="{% url 'create-room' %}">Create Room</a>
+
         <div>
             {% for room in rooms %}
+            <a href="{% url 'update-room' room.id %}">Edit</a>
+            <a href="{% url 'delete-room' room.id %}">Delete</a>
             <span>@{{room.host.username}}</span>
 
             <!--href will generate a link along the lines of website/room/1 for example-->

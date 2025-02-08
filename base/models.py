@@ -32,6 +32,11 @@ class Room(models.Model):
     # auto_now_add only takes a timestamp/snapshot when we first create this model/instance
     created = models.DateTimeField(auto_now_add=True) # when the room was created
 
+    class Meta:
+        # order the rooms by the date they were updated and created (columns). Minus sign means reverse chronological order
+        # i.e., the most recent room will be at the top
+        ordering = ['-updated', '-created'] 
+
     def __str__(self):
         return self.name
 
