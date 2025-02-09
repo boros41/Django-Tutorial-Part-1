@@ -8,6 +8,15 @@
   </head>
   <header>
     {% include 'navbar.html' %} <!--will be included in every page--> 
+
+    <!--Django flash messages. Under main.html navbar which will be included in all templates that inherit this-->
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     <hr>
   </header>
   <body>
