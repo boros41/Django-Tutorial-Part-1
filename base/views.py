@@ -89,7 +89,9 @@ def home(request):
 
     topics = Topic.objects.all() # get all the topics in the database (entries), ideally would filter if a lot of topics
 
-    context = {"rooms": rooms, "topics": topics, "room_count": room_count}
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
+
+    context = {"rooms": rooms, "topics": topics, "room_count": room_count, "room_messages": room_messages}
     return render(request, 'base/home.html', context)
 
 # room page for different conversations
@@ -100,7 +102,7 @@ def room(request, pk):
     #     if i["id"] == int(pk): # if the room ID matches the ID (pk) of the clicked link, that is our room
     #         room = i
 
-    room_messages = room.message_set.all().order_by('-created') # get all the messages in the room
+    room_messages = room.message_set.all() # get all the messages in the room
     participants = room.participants.all() # get all the participants in the room
 
     if request.method == "POST":

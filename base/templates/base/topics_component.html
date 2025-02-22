@@ -1,0 +1,14 @@
+<h2>Browse Topics</h2>
+<hr>
+
+<nav>
+    <!--Reset the URL query when a user selects the All link-->
+    <a href="{% url 'home' %}">All</a>
+</nav>
+
+{% for topic in topics %}
+<nav>
+    <!--Link adds a query to the URL specifying the topic's name which we can get-->
+    <a href="{% url 'home' %}?q={{topic.name}}">{{topic.name}}</a>
+</nav>
+{% endfor %}
