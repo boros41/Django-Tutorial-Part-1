@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .models import Room, Topic
 from .forms import RoomForm
@@ -19,6 +20,9 @@ from .forms import RoomForm
 
 
 def loginPage(request):
+    if request.user.is_authenticated: # if the user is already logged in, redirect to the home page
+        return redirect("home")
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -80,6 +84,7 @@ def room(request, pk):
     context = {"room": room}
     return render(request, "base/room.html", context) # return a specific page for a room
 
+@login_required(login_url="/login")
 def createRoom(request):
     form = RoomForm()
 
@@ -94,10 +99,14 @@ def createRoom(request):
     context = {"form": form}
     return render(request, "base/room_form.html", context)
 
+@login_required(login_url="/login")
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk) # gets room object/entry where the id (primary key) is equal to the URL clicked i.e, room/1
     form = RoomForm(instance=room) # prefill the form with the selected room model's data since we want to know what we are editing
     
+    if request.user != room.host: # if the user is not the host of the room, they cannot edit the room
+        return HttpResponse("You are not allowed here")
+
     if request.method == "POST":
         # get the user's input of the selected room from the form contained in the POST request
         form = RoomForm(request.POST, instance=room) # data in POST request will replace whatever is in the room instance
@@ -108,8 +117,12 @@ def updateRoom(request, pk):
     context = {"form": form}
     return render(request, "base/room_form.html", context)
 
+@login_required(login_url="/login")
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
+
+    if request.user != room.host: # if the user is not the host of the room, they cannot delete the room
+        return HttpResponse("You are not allowed here")
 
     if request.method == "POST":
         room.delete() # remove room entry from Room table from the database

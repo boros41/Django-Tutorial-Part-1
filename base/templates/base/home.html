@@ -45,8 +45,11 @@
 
         <div>
             {% for room in rooms %}
+            {% if request.user == room.host %}
             <a href="{% url 'update-room' room.id %}">Edit</a>
             <a href="{% url 'delete-room' room.id %}">Delete</a>
+            {% endif %}
+            
             <span>@{{room.host.username}}</span>
 
             <!--href will generate a link along the lines of website/room/1 for example-->
