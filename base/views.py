@@ -125,7 +125,7 @@ def userProfile(request, pk):
     context = {"user": user, "rooms": rooms, "room_messages": room_messages, "topics": topics}
     return render(request, "base/profile.html", context)
 
-@login_required(login_url="/login")
+@login_required(login_url="login")
 def createRoom(request):
     form = RoomForm()
 
@@ -133,7 +133,9 @@ def createRoom(request):
         form = RoomForm(request.POST) # get the user's input from the form contained in the POST request
 
         if form.is_valid():
-            form.save() # save the user's input of the model instance to the database
+            room = form.save(commit=False)
+            room.host = request.user # set the host of the room to the current user
+            room.save()
             return redirect("home") # redirect to the home page specified by the url's name attribute
     
 
