@@ -5,11 +5,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DjangoTutorial</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/main.css' %}"/>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}" />
+    <title>StudyBuddy - Find study partners around the world!</title>
   </head>
-  <header>
+
+  <body>
+    
     {% include 'navbar.html' %} <!--will be included in every page--> 
 
     <!--Django flash messages. Under main.html navbar which will be included in all templates that inherit this-->
@@ -20,13 +24,11 @@
         {% endfor %}
     </ul>
     {% endif %}
-    <hr>
 
-
-  </header>
-  <body>
     {% block content %}
 
     {% endblock %}
+    
+    <script src="{% static 'js/script.js' %}"></script>
   </body>
 </html>

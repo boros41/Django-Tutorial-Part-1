@@ -128,36 +128,44 @@ def userProfile(request, pk):
 @login_required(login_url="login")
 def createRoom(request):
     form = RoomForm()
+    topics = Topic.objects.all()
 
     if request.method == "POST":
-        form = RoomForm(request.POST) # get the user's input from the form contained in the POST request
+        topic_name = request.POST.get("topic")
+        topic, created = Topic.objects.get_or_create(name=topic_name) # get the topic object if it exists, otherwise create it
+        
+        Room.objects.create(
+            host=request.user,
+            topic=topic,
+            name=request.POST.get("name"),
+            description=request.POST.get("description")
+        )
 
-        if form.is_valid():
-            room = form.save(commit=False)
-            room.host = request.user # set the host of the room to the current user
-            room.save()
-            return redirect("home") # redirect to the home page specified by the url's name attribute
+        return redirect("home") # redirect to the home page specified by the url's name attribute
     
 
-    context = {"form": form}
+    context = {"form": form, "topics": topics}
     return render(request, "base/room_form.html", context)
 
 @login_required(login_url="/login")
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk) # gets room object/entry where the id (primary key) is equal to the URL clicked i.e, room/1
     form = RoomForm(instance=room) # prefill the form with the selected room model's data since we want to know what we are editing
-    
+    topics = Topic.objects.all()
+
     if request.user != room.host: # if the user is not the host of the room, they cannot edit the room
         return HttpResponse("You are not allowed here")
 
     if request.method == "POST":
-        # get the user's input of the selected room from the form contained in the POST request
-        form = RoomForm(request.POST, instance=room) # data in POST request will replace whatever is in the room instance
-        if form.is_valid():
-            form.save()
-            return redirect("home") # redirect to the home page specified by the url's name attribute 
+        topic_name = request.POST.get("topic")
+        topic, created = Topic.objects.get_or_create(name=topic_name) # get the topic object if it exists, otherwise create it
+        room.name = request.POST.get("name")
+        room.topic = topic
+        room.description = request.POST.get("description")
+        room.save()
+        return redirect("home") # redirect to the home page specified by the url's name attribute 
 
-    context = {"form": form}
+    context = {"form": form, "topics": topics, "room": room}
     return render(request, "base/room_form.html", context)
 
 @login_required(login_url="/login")
