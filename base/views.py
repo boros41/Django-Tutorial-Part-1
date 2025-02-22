@@ -40,6 +40,10 @@ def loginPage(request):
     context = {}
     return render(request, 'base/login_register.html', context)
 
+def logoutUser(request):
+    logout(request) # deletes the token therefore deleting that user
+    return redirect("home")
+
 # home page
 def home(request):
     if request.GET.get("q") != None:
