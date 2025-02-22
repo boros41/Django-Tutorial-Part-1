@@ -21,7 +21,7 @@ class Room(models.Model):
     # want to add a description later
     description = models.TextField(null=True, blank=True) # a bigger text field than CharField of room description
 
-    # participants = # all the users currently active in a room
+    participants = models.ManyToManyField(User, related_name='participants', blank=True) # all the users currently active in a room
     
     # takes a snapshot anytime this model instance was updated. 
     # Anytime we run a save method to update this table it's gonna take a timestamp

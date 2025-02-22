@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm # built-in form for creat
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # decorator to ensure that the user is logged in
 from django.http import HttpResponse
-from .models import Room, Topic
+from .models import Room, Topic, Message
 from .forms import RoomForm
 
 # Create your views here.
@@ -100,7 +100,19 @@ def room(request, pk):
     #     if i["id"] == int(pk): # if the room ID matches the ID (pk) of the clicked link, that is our room
     #         room = i
 
-    context = {"room": room}
+    room_messages = room.message_set.all().order_by('-created') # get all the messages in the room
+    participants = room.participants.all() # get all the participants in the room
+
+    if request.method == "POST":
+        message = Message.objects.create(
+            user=request.user,
+            room=room,
+            body=request.POST.get("body")
+        )
+        room.participants.add(request.user) # add the user to the room's participants
+        return redirect("room", pk=room.id)
+
+    context = {"room": room, "room_messages": room_messages, "participants": participants}
     return render(request, "base/room.html", context) # return a specific page for a room
 
 @login_required(login_url="/login")
@@ -148,3 +160,16 @@ def deleteRoom(request, pk):
         return redirect("home")
 
     return render(request, "base/delete.html", {"obj":room})
+
+@login_required(login_url="/login")
+def deleteMessage(request, pk):
+    message = Message.objects.get(id=pk)
+
+    if request.user != message.user: # if the user is not the host of the room, they cannot delete the room
+        return HttpResponse("You are not allowed here")
+
+    if request.method == "POST":
+        message.delete() # remove room entry from Room table from the database
+        return redirect("home")
+
+    return render(request, "base/delete.html", {"obj":message})
