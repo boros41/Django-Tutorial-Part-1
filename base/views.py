@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm # built-in form for creating a user
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required # decorator to ensure that the user is logged in
 from django.http import HttpResponse
 from .models import Room, Topic
 from .forms import RoomForm
@@ -20,11 +21,13 @@ from .forms import RoomForm
 
 
 def loginPage(request):
+    page = "login"
+
     if request.user.is_authenticated: # if the user is already logged in, redirect to the home page
         return redirect("home")
 
     if request.method == "POST":
-        username = request.POST.get("username")
+        username = request.POST.get("username").lower()
         password = request.POST.get("password")
 
         try:
@@ -41,12 +44,28 @@ def loginPage(request):
         else:
             messages.error(request, "Username or password does not exist")
 
-    context = {}
+    context = {"page": page}
     return render(request, 'base/login_register.html', context)
 
 def logoutUser(request):
     logout(request) # deletes the token therefore deleting that user
     return redirect("home")
+
+def registerPage(request):
+    form = UserCreationForm() # built-in form for creating a user
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST) # pass the user's credentials from the register form contained in the POST request
+        if form.is_valid():
+            user = form.save(commit=False) # save the user's credentials to the database but do not commit yet
+            user.username = user.username.lower() # convert the username to lowercase
+            user.save() # commit the user's credentials to the database
+            login(request, user)
+            return redirect("home")
+        else:
+            messages.error(request, "An error occurred during registration")
+
+    return render(request, 'base/login_register.html', {'form': form})
 
 # home page
 def home(request):
