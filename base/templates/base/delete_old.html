@@ -1,0 +1,38 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <header>
+        
+    </header>
+    <main>
+        <!--Empty string for action means it will send the form data to the current URL-->
+        <form action="" method="post">
+            {% csrf_token %}
+
+            <!--generic object specified because rooms are not the only thing a user can delete.
+            If passing a room object/entry, it will use the __str__ value which returns the room's name-->
+            <p>Are you sure you want to delete "{{obj}}?"</p>
+
+            <!--Access the request object directly and link back to the previous page-->
+            <a href="{{request.META.HTTP_REFERER}}">Go back</a>
+
+            <input type="submit" value="Confirm">
+        </form>
+    </main>
+    <footer>
+
+    </footer>
+  </body>
+</html>
+
+{% endblock %}
