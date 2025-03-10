@@ -88,7 +88,7 @@ def home(request):
 
     room_count = rooms.count() # get the number of rooms 
 
-    topics = Topic.objects.all() # get all the topics in the database (entries), ideally would filter if a lot of topics
+    topics = Topic.objects.all()[0:5] # get all the topics in the database (entries), ideally would filter if a lot of topics
 
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
 
@@ -207,3 +207,16 @@ def updateUser(request):
             return redirect('user-profile', pk=user.id)
 
     return render(request, 'base/update-user.html', {'form': form})
+
+def topicsPage(request):
+    if request.GET.get("q") != None:
+        q = request.GET.get("q") # get the query parameter from the URL such as "?q=Django"
+    else:
+        q = ""
+
+    topics = Topic.objects.filter(name__icontains=q) 
+    return render(request, 'base/topics.html', {'topics': topics})
+
+def activityPage(request):
+    room_messages = Message.objects.all()
+    return render(request, 'base/activity.html', {'room_messages': room_messages})
