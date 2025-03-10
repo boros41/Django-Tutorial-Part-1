@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # let urls.py file of base app handle all routing matching the route (empty string/core URL)
-    path('', include('base.urls'))
+    path('', include('base.urls')),
+    path('api/', include('base.api.urls')),
 ]
