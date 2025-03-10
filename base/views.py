@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm # built-in form for creating a user
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # decorator to ensure that the user is logged in
 from django.http import HttpResponse
-from .models import Room, Topic, Message
+from .models import Room, Topic, Message, User
 from .forms import RoomForm
-from .forms import RoomForm, UserForm
+from .forms import RoomForm, UserForm, MyUserCreationForm
+
 
 # Create your views here.
 
@@ -28,16 +27,16 @@ def loginPage(request):
         return redirect("home")
 
     if request.method == "POST":
-        username = request.POST.get("username").lower()
+        email = request.POST.get("email").lower()
         password = request.POST.get("password")
 
         try:
-            user = User.objects.get(username=username) # will throw an exception if the user does not exist
+            user = User.objects.get(email=email) # will throw an exception if the user does not exist
         except:
             messages.error(request, "User does not exist")
 
         # return a User object if credentials are valid, None otherwise
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             login(request, user) # adds the user to the sessions database table and stores it as a cookie in the user's browser
@@ -53,10 +52,10 @@ def logoutUser(request):
     return redirect("home")
 
 def registerPage(request):
-    form = UserCreationForm() # built-in form for creating a user
+    form = MyUserCreationForm()
 
     if request.method == "POST":
-        form = UserCreationForm(request.POST) # pass the user's credentials from the register form contained in the POST request
+        form = MyUserCreationForm(request.POST) # pass the user's credentials from the register form contained in the POST request
         if form.is_valid():
             user = form.save(commit=False) # save the user's credentials to the database but do not commit yet
             user.username = user.username.lower() # convert the username to lowercase
@@ -201,7 +200,7 @@ def updateUser(request):
     form = UserForm(instance=user)
 
     if request.method == "POST":
-        form = UserForm(request.POST, instance=user)
+        form = UserForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             return redirect('user-profile', pk=user.id)
